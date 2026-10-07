@@ -6,14 +6,11 @@
 /*   By: cperez-h <cperez-h@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/02 13:07:17 by cperez-h          #+#    #+#             */
-/*   Updated: 2026/10/02 13:23:47 by cperez-h         ###   ########.fr       */
+/*   Updated: 2026/10/07 11:33:26 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_isalpha(int	c)
+int	ft_isalpha(int c)
 {
-	if (c >= 'A' & c <+ 'Z' ||
-			c >= 'a' & c <= 'z')
-		return (1);
-	return (0);
+	return (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z');
 }

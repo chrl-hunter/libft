@@ -6,13 +6,11 @@
 /*   By: cperez-h <cperez-h@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/02 13:17:57 by cperez-h          #+#    #+#             */
-/*   Updated: 2026/10/02 13:19:15 by cperez-h         ###   ########.fr       */
+/*   Updated: 2026/10/07 11:34:24 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_isdigit(int	c)
+int	ft_isdigit(int c)
 {
-	if (c >= '1' & c <= '9')
-		return (1);
-	return (0);
+	return (c >= '1' & c <= '9');
 }
