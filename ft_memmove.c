@@ -6,28 +6,23 @@
 /*   By: cperez-h <cperez-h@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/07 12:13:02 by cperez-h          #+#    #+#             */
-/*   Updated: 2026/10/15 16:27:46 by cperez-h         ###   ########.fr       */
+/*   Updated: 2026/10/15 17:32:49 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "libft.h"
-void	check_valid( 
+#include "libft.h" 
 
 void	*ft_memmove(void *dest, const void *src, size_t n)
 {
-	unsigned char		*d;
-	const unsigned char	*s;
-	size_t				i;
+	size_t	i;
 
 	if (dest == src || !n)
 		return (dest);
-	d = (unsigned char *)dest;
-	s = (const unsigned char *)src;
-	if (d < s)
+	if (dest < src)
 	{
 		i = 0;
 		while (i < n)
 		{
-			d[i] = s[i];
+			((unsigned char *)dest)[i] = ((const unsigned char *))src[i];
 			i++;
 		}
 	}
@@ -36,7 +31,7 @@ void	*ft_memmove(void *dest, const void *src, size_t n)
 		i = n;
 		while (i > 0)
 		{
-			d[n] = s[n];
+			((unsigned char *)dest)[i] = ((const unsigned char *)src)[i];
 			i--;
 		}
 	}
