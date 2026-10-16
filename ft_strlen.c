@@ -6,7 +6,7 @@
 /*   By: cperez-h <cperez-h@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/02 15:48:04 by cperez-h          #+#    #+#             */
-/*   Updated: 2026/10/02 15:49:17 by cperez-h         ###   ########.fr       */
+/*   Updated: 2026/10/16 14:32:11 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,5 @@ int	ft_strlen(int *c)
 	i = 0;
 	while (c[i])
 		i++;
-	return (i + 1);
+	return (i);
 }
