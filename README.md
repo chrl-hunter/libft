@@ -1,6 +1,6 @@
 # Libft — estado de desarrollo
 
-18 funciones implementadas y verificadas con las pruebas de `tests/`.
+25 funciones implementadas y verificadas con las pruebas de `tests/`.
 La biblioteca compila, pero **la parte obligatoria todavía está incompleta**.
 
 ## Compilar y comprobar
@@ -23,8 +23,10 @@ ASAN_OPTIONS=detect_leaks=0 ./tests/run.sh
 ```
 
 Esto mantiene activas las comprobaciones de accesos a memoria y comportamiento
-indefinido. No equivale a verificar fugas de memoria. Las funciones actuales no
-reservan memoria dinámica; las pruebas liberan sus buffers.
+indefinido. No equivale a verificar fugas de memoria. Las pruebas de las funciones con
+reserva dinámica liberan los buffers que reciben. `tests/run.sh` también usa
+`--wrap=malloc` de GNU ld para comprobar la propagación de fallos de reserva
+y el rechazo de overflow antes de llamar a `malloc` (comprobación de Linux).
 
 `tests/` contiene herramientas de desarrollo y no se enlaza en `libft.a`.
 La comprobación de Norminette se aplica a los archivos de entrega de la raíz;
@@ -70,50 +72,79 @@ vigentes sobre archivos auxiliares.
   `ft_strchr` y `ft_strrchr` comparan bytes sin signo para funcionar con valores
   mayores que 127 en este entorno.
 
+## Integración de las dos ramas — 27 de octubre de 2026
+
+Se integran `a94ec8a` (correcciones de la PR #1) y `c08f86c` (avances de
+`master`) mediante un commit con ambos padres. Los conflictos de `ft_memchr`,
+`ft_strlen`, `ft_strncmp` y `ft_strrchr` conservan las correcciones de la PR:
+búsqueda del terminador, comparación de bytes sin signo y límites de lectura.
+Se eliminan tres inclusiones duplicadas de `libft.h` que traía la PR.
+Las siete funciones nuevas de `master` están en el Makefile y en la cabecera;
+`ft_substr` y `ft_strjoin` conservan sus implementaciones originales.
+
+- **`ft_calloc`**: se usa el parámetro `n` en lugar de `size`, que no existía.
+  Antes de multiplicar se comprueba `n != 0 && nmemb > (size_t)-1 / n`.
+  Así se evita que la multiplicación desborde `size_t` y reserve menos bytes
+  de los necesarios. El caso de tamaño cero admite el resultado de `malloc(0)`;
+  no se debe desreferenciar ese resultado. Si falla la reserva, devuelve `NULL`.
+- **`ft_strdup`**: el nombre exportado pasa a ser `ft_strdup`, con su prototipo.
+  Copia `ft_strlen(s) + 1` bytes para incluir el terminador en una reserva propia.
+  El llamante es responsable de `free`.
+- **`ft_strnstr`**: `j` se reinicia en cada candidato `i`; una coincidencia
+  parcial anterior no se puede reutilizar como si perteneciera al candidato
+  siguiente. Se comprueba `i < n` antes de leer `big[i]`, y `j < n - i` antes
+  de leer `big[i + j]`. La resta evita desbordar la suma usada como límite.
+  Una aguja vacía devuelve `big`, incluso con `n == 0`.
+- **`ft_memcmp`**: igualdad devuelve el entero `0`, no el puntero `NULL`.
+  Se mantiene la comparación como `unsigned char`, incluidos bytes > 127.
+- **`ft_atoi`**: omite los seis espacios ASCII, consume como máximo un signo
+  y termina en el primer carácter no numérico. Acumula en negativo para poder
+  representar `INT_MIN` sin construir primero su magnitud positiva, que no
+  cabe en `int`. Se comprueban entradas cuyo valor cabe en `int`; no se promete
+  un comportamiento de extensión para valores fuera de ese rango.
+- **`libft.h`**: incluye `<stdlib.h>` para `malloc`, declara las 25 funciones
+  con nombres `ft_*` y elimina prototipos duplicados o incompatibles.
+
 ## Cobertura y resultados
 
-Verificado el 21 de octubre de 2026, a partir de `c52b888`:
+Verificado el 27 de octubre de 2026 con GCC 13.3.0 en Linux:
 
-- Compilación con `cc -Wall -Wextra -Werror` y creación con `ar rcs`.
-- Pruebas del archivo `libft.a` y de las fuentes instrumentadas con ASan/UBSan:
-  ambas pasan (`detect_leaks=0` por la restricción del entorno).
-- `ft_memmove`: todas las combinaciones válidas de origen, destino y longitud
-  dentro de un buffer de 32 bytes, más buffers independientes; se compara
-  contenido completo y puntero devuelto con `memmove` de libc.
-- `ft_strlcat` y `ft_strlcpy`: cadenas vacías, tamaños 0 y 1, encaje exacto,
-  truncamiento, bytes de guarda y destino sin terminador dentro del límite.
-  Resultados esperados calculados según el contrato, sin depender de libbsd.
-- Comparaciones con libc para las otras funciones, valores de byte de rango
-  alto, búsqueda de `\0`, y buffers sin terminador de tamaño exacto.
-- Norminette **3.3.59**: 18 archivos `.c` y `libft.h` pasan. Repetir con la
-  versión instalada en el campus antes de entregar.
-- `make`, segundo `make`, `clean`, `fclean`, `re` y compilación paralela pasan.
-  `nm -u libft.a` solo muestra dependencias internas `ft_*`.
+- `cc -Wall -Wextra -Werror` y creación de `libft.a` con los 25 símbolos.
+- `ASAN_OPTIONS=detect_leaks=0 ./tests/run.sh`: pasan las suites antiguas y
+  nuevas, enlazadas con el archivo y repetidas con ASan/UBSan sobre las fuentes.
+  UBSan se configura para detenerse ante el primer error.
+- Suite original: matriz de solapamientos de `ft_memmove`, tamaños 0 y 1,
+  truncamiento, bytes de guarda, bytes altos y búsqueda del terminador.
+- Suite nueva: `ft_memcmp` frente a libc; `ft_strnstr` frente a un oráculo
+  independiente, prefijos repetidos y buffers sin terminador; `ft_atoi` frente
+  a libc en el rango representable, incluidos `INT_MIN` y `INT_MAX`.
+- Reservas: contenido cero, cadenas independientes y terminadas, entradas
+  vacías, subcadenas fuera de rango, longitudes máximas, overflow de `calloc`,
+  y propagación de `malloc == NULL` en las cuatro funciones con reserva.
+- Norminette **3.3.59**: pasan los 25 archivos `.c` y `libft.h` de la raíz.
+  Los auxiliares de `tests/` no se presentan como conformes a la Norma.
+- Ciclo de Makefile: segundo `make` sin recompilación ni relink, `clean`,
+  `fclean`, `re`, construcción paralela y reconstrucción al cambiar la cabecera.
 
+**Pendiente:** LeakSanitizer no puede inspeccionar `/proc` en este entorno;
+la ejecución con su configuración predeterminada falla por ese motivo.
+Se repitió con `detect_leaks=0`; no se afirma una verificación de fugas.
+Valgrind no está instalado. Repetir la detección de fugas y la Norma del campus
+antes de entregar. Tampoco se ha realizado la evaluación oficial de 42.
 Estas pruebas no sustituyen la evaluación completa del proyecto.
 
 ## Pendiente: continuar por aquí
 
-No quedan funciones vacías entre los archivos existentes: `ft_memchr.c` era
-la única. Faltan estas **16 funciones** respecto a la parte obligatoria del
-enunciado público consultado:
+Faltan estas **9 funciones** respecto al enunciado público consultado:
 
-1. Sin reserva dinámica: `ft_memcmp`, `ft_strnstr`, `ft_atoi`.
-2. Reserva básica: `ft_calloc`, `ft_strdup`.
-3. Cadenas con reserva: `ft_substr`, `ft_strjoin`, `ft_strtrim`, `ft_split`,
-   `ft_itoa`.
-4. Callbacks: `ft_strmapi`, `ft_striteri`.
-5. Salida: `ft_putchar_fd`, `ft_putstr_fd`, `ft_putendl_fd`, `ft_putnbr_fd`.
+1. Cadenas con reserva: `ft_strtrim`, `ft_split`, `ft_itoa`.
+2. Callbacks: `ft_strmapi`, `ft_striteri`.
+3. Salida: `ft_putchar_fd`, `ft_putstr_fd`, `ft_putendl_fd`, `ft_putnbr_fd`.
 
-Empieza por `ft_memcmp`: recorre como máximo `n` bytes y compara como
-`unsigned char`. Prueba `n == 0`, igualdad, diferencia en el último byte y
-valores mayores que 127. Después sigue con `ft_strnstr` y `ft_atoi`.
-Para cada nueva función, añade su prototipo a `libft.h`, su archivo a `SRCS`
-en el Makefile y una prueba. No se añadieron prototipos ni stubs de funciones
-inexistentes, para no presentar una API que todavía no se puede enlazar.
-
-Los nueve bonus de listas se dejan para después de completar la parte
-obligatoria. Por eso todavía no hay regla `bonus` ni `t_list`.
+Para cada función nueva, añade su prototipo a `libft.h`, su archivo a `SRCS`
+y una prueba. No se añadieron stubs de funciones pendientes.
+Los nueve bonus de listas quedan para después de la parte obligatoria;
+todavía no hay regla `bonus` ni `t_list`.
 
 ## Referencias y alcance de los requisitos
 
