@@ -6,16 +6,18 @@
 /*   By: cperez-h <cperez-h@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/02 15:48:04 by cperez-h          #+#    #+#             */
-/*   Updated: 2026/10/21 14:29:59 by cperez-h         ###   ########.fr       */
+/*   Updated: 2026/10/16 14:32:11 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-size_t	ft_strlen(const char *c)
+#include "libft.h"
+
+size_t	ft_strlen(const char *s)
 {
 	size_t	i;
 
 	i = 0;
-	while (c[i])
+	while (s[i])
 		i++;
 	return (i);
 }

@@ -20,7 +20,9 @@ int	ft_atoi(const char *ptr)
 	i = 0;
 	sign = 1;
 	result = 0;
-	while (ptr[i] == '-' || ptr[i] == '+')
+	while (ptr[i] == ' ' || (ptr[i] >= '\t' && ptr[i] <= '\r'))
+		i++;
+	if (ptr[i] == '-' || ptr[i] == '+')
 	{
 		if (ptr[i] == '-')
 			sign = -1;
@@ -28,8 +30,10 @@ int	ft_atoi(const char *ptr)
 	}
 	while (ptr[i] >= '0' && ptr[i] <= '9')
 	{
-		result = result * 10 + (ptr[i] - '0');
+		result = result * 10 - (ptr[i] - '0');
 		i++;
 	}
-	return (result * sign);
+	if (sign == -1)
+		return (result);
+	return (-result);
 }
