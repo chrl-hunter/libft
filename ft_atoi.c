@@ -9,7 +9,13 @@
 /*   Updated: 2026/10/20 19:17:23 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "libft.h"
+
+static int	ft_isspace(int c)
+{
+	return (c == ' ' || (c >= '\t' && c <= '\r'));
+}
 
 int	ft_atoi(const char *ptr)
 {
@@ -20,7 +26,9 @@ int	ft_atoi(const char *ptr)
 	i = 0;
 	sign = 1;
 	result = 0;
-	while (ptr[i] == '-' || ptr[i] == '+')
+	while (ft_isspace(ptr[i]))
+		i++;
+	if (ptr[i] == '+' || ptr[i] == '-')
 	{
 		if (ptr[i] == '-')
 			sign = -1;
@@ -28,8 +36,8 @@ int	ft_atoi(const char *ptr)
 	}
 	while (ptr[i] >= '0' && ptr[i] <= '9')
 	{
-		result = result * 10 + (ptr[i] - '0');
+		result = result * 10 - (ptr[i] - '0');
 		i++;
 	}
-	return (result * sign);
+	return (result * -sign);
 }

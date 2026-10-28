@@ -10,12 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-size_t	ft_strlen(const char *c)
+#include "libft.h"
+
+size_t	ft_strlen(const char *s)
 {
 	size_t	i;
 
 	i = 0;
-	while (c[i])
+	while (s[i])
 		i++;
 	return (i);
 }

@@ -1,2 +1,7 @@
 Supreme-Tester-Libft/
 libftTester/
+
+.bonus
+*.o
+*.a
+tests/.build/

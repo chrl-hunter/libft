@@ -9,45 +9,43 @@
 /*   Updated: 2026/10/26 23:52:46 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "libft.h"
 
-static size_t	count_num(int n)
+static size_t	count_num(unsigned int n)
 {
 	size_t	i;
 
-	i = 0;
-	if (n < 0)
-	{
-		n = -n;
-		i++;
-	}
+	i = 1;
 	while (n >= 10)
 	{
-		n = n % 10;
+		n /= 10;
 		i++;
 	}
-	return (++i);
+	return (i);
 }
 
 char	*ft_itoa(int n)
 {
-	char	*result;
-	int		i;
+	char			*result;
+	unsigned int	nb;
+	size_t			len;
 
-	result = malloc(sizeof(char) * count_num(n));
+	nb = n;
+	if (n < 0)
+		nb = 0U - nb;
+	len = count_num(nb) + (n < 0);
+	result = malloc(len + 1);
 	if (!result)
 		return (NULL);
-	i = 0;
+	result[len] = '\0';
+	while (nb >= 10)
+	{
+		result[--len] = '0' + nb % 10;
+		nb /= 10;
+	}
+	result[--len] = '0' + nb;
 	if (n < 0)
-	{
-		n = -n;
-		result[i++] = '-';
-	}
-	while (n >= 10)
-	{
-		result[i++] = n / 10;
-		n = n % 10;
-	}
-	result[i] = n;
+		result[0] = '-';
 	return (result);
 }

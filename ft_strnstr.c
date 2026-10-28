@@ -9,23 +9,24 @@
 /*   Updated: 2026/10/20 18:46:32 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "libft.h"
 
-char	*ft_strnstr(const char *big, const char *lit, size_t n)
+char	*ft_strnstr(const char *big, const char *little, size_t len)
 {
 	size_t	i;
 	size_t	j;
 
-	i = 0;
-	if (lit[0] == '\0')
+	if (!little[0])
 		return ((char *)big);
-	j = 0;
-	while (big[i] && i < n)
+	i = 0;
+	while (i < len && big[i])
 	{
-		while (i + j < n && big[i + j]
-			&& big[i + j] == lit[j])
+		j = 0;
+		while (i + j < len && big[i + j]
+			&& big[i + j] == little[j])
 			j++;
-		if (lit[j] == '\0')
+		if (!little[j])
 			return ((char *)&big[i]);
 		i++;
 	}
