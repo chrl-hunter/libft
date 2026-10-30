@@ -9,20 +9,23 @@
 /*   Updated: 2026/10/20 18:23:37 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "libft.h"
 
 int	ft_memcmp(const void *s1, const void *s2, size_t n)
 {
-	size_t	i;
+	const unsigned char	*ptr1;
+	const unsigned char	*ptr2;
+	size_t				i;
 
+	ptr1 = (const unsigned char *)s1;
+	ptr2 = (const unsigned char *)s2;
 	i = 0;
 	while (i < n)
 	{
-		if (((const unsigned char *)s1)[i]
-				!= ((const unsigned char *)s2)[i])
-			return (((const unsigned char *)s1)[i]
-					-((const unsigned char *)s2)[i]);
+		if (ptr1[i] != ptr2[i])
+			return (ptr1[i] - ptr2[i]);
 		i++;
 	}
-	return (NULL);
+	return (0);
 }

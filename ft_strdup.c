@@ -9,11 +9,12 @@
 /*   Updated: 2026/10/20 19:29:31 by cperez-h         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "libft.h"
 
-char	*strdup(const char *s)
+char	*ft_strdup(const char *s)
 {
-	void	*ptr;
+	char	*ptr;
 	size_t	len;
 
 	len = ft_strlen(s) + 1;
