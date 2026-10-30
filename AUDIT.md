@@ -88,8 +88,38 @@ Bonus opcional ausente: `ft_lstnew`, `ft_lstadd_front`, `ft_lstsize`, `ft_lstlas
 Su ausencia se distingue de los errores de la parte obligatoria. Se añaden `t_list`
 y sus prototipos, y se ajusta `ft_lstsize` a retorno `int`.
 Se revisan recorrido, inserción, liberación, callbacks y limpieza al fallar una
-reserva de nodo en `ft_lstmap`. Esta última mantiene la estrategia de tmp basada
-en `ft_lstadd_back`, cuyo coste total para mapear n nodos es O(n²).
+reserva de nodo en `ft_lstmap`. La adaptación inicial usaba `ft_lstadd_back`, con
+coste O(n²). Desde la optimización del 30/10/2026 conserva un puntero local `last`
+al último nodo: cada inserción cuesta O(1) y la construcción completa O(n), más
+el coste de los callbacks y del asignador. Solo requiere O(1) de espacio auxiliar,
+además de los nodos y contenidos de salida. `ft_lstadd_back` no se modifica.
+El helper estático `clear_map` conserva el orden de limpieza si falla el nodo:
+primero `del(content)` (si existe), después `ft_lstclear` de la lista parcial.
+Un retorno NULL de `f` sigue siendo contenido válido; no se añade una política
+de error para el callback. Se conservan las comprobaciones de callbacks nulos.
+
+### Regresión de ft_lstmap (30/10/2026)
+
+`tests/lstmap.c`, integrado en `make -C tests check`, verifica:
+
+- Lista vacía, `f == NULL`, `del == NULL` y lista de un nodo.
+- Listas de 64, 100.000 y 200.000 nodos: orden, transformación, nodos y contenidos
+  independientes, terminación NULL y lista original intacta.
+- Fallo de cada una de las 128 reservas de una lista de 64 nodos, las dos de
+  una lista de un nodo y una reserva de nodo con contenido prestado y `del == NULL`.
+  Los fallos de contenido conservan el nodo con contenido NULL; los fallos de nodo
+  devuelven NULL. Se comprueba el número exacto de llamadas a `f` y `del`, y cero
+  reservas vivas tras la limpieza.
+- Una envoltura de `ft_lstlast` detecta la reintroducción de búsquedas del último
+  nodo, sin depender de mediciones de tiempo. La complejidad O(n) se deduce del
+  único bucle y del enlace directo, no de un benchmark.
+
+Validación repetida con `-Wall -Wextra -Werror`, AddressSanitizer y
+UndefinedBehaviorSanitizer (`ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1`):
+64.740 comprobaciones previas, 15 fallos previos y la nueva suite pasan.
+Norminette 3.3.60 acepta los 43 fuentes y `libft.h`. Se verifican 34 símbolos
+obligatorios después de `make -j4 re`, 43 tras `make bonus` y ausencia de
+rearchivado al repetir `make`/`make bonus`. El Makefile raíz no cambia.
 
 ## Problemas de tmp que no deben copiarse sin revisión
 

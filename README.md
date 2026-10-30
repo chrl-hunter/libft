@@ -33,6 +33,12 @@ comprueba que no queden reservas pendientes en esos caminos de error.
 Los archivos de pruebas son herramientas de desarrollo y no forman parte del archivo
 de biblioteca ni del conjunto de fuentes sometido a Norminette.
 
+La suite adicional `tests/lstmap.c` cubre listas vacías y de hasta 200.000 nodos,
+callbacks nulos, conservación del orden y de la entrada, y 131 fallos de reserva
+adicionales. Comprueba la limpieza exacta y detecta búsquedas repetidas del último
+nodo. `ft_lstmap` conserva un puntero al último nodo para construir en O(n), con
+O(1) de espacio auxiliar (sin contar salida ni callbacks).
+
 En entornos donde LeakSanitizer no puede inspeccionar `/proc`, puede ejecutarse:
 
 ```sh

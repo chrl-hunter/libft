@@ -3,9 +3,10 @@ CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address,undefined -fno-omit-frame-p
 SOURCES = $(wildcard ../ft_*.c)
 BUILD = .build
 
-check: $(BUILD)/regression $(BUILD)/fail_malloc
+check: $(BUILD)/regression $(BUILD)/fail_malloc $(BUILD)/lstmap
 	./$(BUILD)/regression
 	./$(BUILD)/fail_malloc
+	./$(BUILD)/lstmap
 
 $(BUILD):
 	mkdir -p $@
@@ -15,6 +16,9 @@ $(BUILD)/regression: regression.c $(SOURCES) ../libft.h | $(BUILD)
 
 $(BUILD)/fail_malloc: fail_malloc.c $(SOURCES) ../libft.h | $(BUILD)
 	$(CC) $(CFLAGS) -I.. fail_malloc.c $(SOURCES) -Wl,--wrap=malloc -Wl,--wrap=free -o $@
+
+$(BUILD)/lstmap: lstmap.c $(SOURCES) ../libft.h | $(BUILD)
+	$(CC) $(CFLAGS) -I.. lstmap.c $(SOURCES) -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=ft_lstlast -o $@
 
 clean:
 	rm -rf $(BUILD)
